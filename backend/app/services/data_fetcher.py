@@ -59,12 +59,16 @@ class DataFetcher:
         Fetch OHLCV historical bars, real-time market price, and key ratios.
         """
         symbol = symbol.strip().upper()
+        if period == "1d" and interval == "1d":
+            interval = "5m"
+
         cache_key = f"{symbol}_{period}_{interval}"
         now = datetime.datetime.now()
+        ttl = 15 if period == "1d" else CACHE_TTL_SECONDS
 
         if cache_key in _CACHE:
             cached_item = _CACHE[cache_key]
-            if (now - cached_item["timestamp"]).total_seconds() < CACHE_TTL_SECONDS:
+            if (now - cached_item["timestamp"]).total_seconds() < ttl:
                 return cached_item["data"]
 
         try:
@@ -94,7 +98,10 @@ class DataFetcher:
                 l = lows[i] if lows[i] is not None else min(o, c)
                 v = volumes[i] if volumes[i] is not None else 0
 
-                date_str = datetime.datetime.fromtimestamp(timestamps[i]).strftime('%Y-%m-%d')
+                if interval in ["1m", "2m", "5m", "15m", "30m", "60m", "90m"]:
+                    date_str = datetime.datetime.fromtimestamp(timestamps[i]).strftime('%H:%M')
+                else:
+                    date_str = datetime.datetime.fromtimestamp(timestamps[i]).strftime('%Y-%m-%d')
                 history_list.append({
                     "date": date_str,
                     "open": round(float(o), 2),

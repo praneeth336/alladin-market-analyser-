@@ -109,6 +109,8 @@ async def get_stock_history(symbol: str, period: str = "1y", interval: str = "1d
     """
     Fetch historical OHLCV chart bars and indicator series for plotting.
     """
+    if period == "1d" and interval == "1d":
+        interval = "5m"
     try:
         data = DataFetcher.get_stock_data(symbol, period=period, interval=interval)
         df_prices = data["df_prices"]

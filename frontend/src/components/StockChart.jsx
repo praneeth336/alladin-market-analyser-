@@ -8,11 +8,12 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  Legend
+  Legend,
+  ReferenceLine
 } from 'recharts';
-import { Activity, Layers } from 'lucide-react';
+import { Activity, Layers, Radio } from 'lucide-react';
 
-export default function StockChart({ history = [], chartSeries = [], currency = 'INR', period, onPeriodChange }) {
+export default function StockChart({ history = [], chartSeries = [], currency = 'INR', period, onPeriodChange, currentPrice }) {
   const [showSMA20, setShowSMA20] = useState(true);
   const [showSMA50, setShowSMA50] = useState(true);
   const [showSMA200, setShowSMA200] = useState(false);
@@ -31,6 +32,7 @@ export default function StockChart({ history = [], chartSeries = [], currency = 
   });
 
   const periods = [
+    { label: '1D Live', value: '1d' },
     { label: '1M', value: '1m' },
     { label: '6M', value: '6m' },
     { label: '1Y', value: '1y' },
@@ -102,9 +104,20 @@ export default function StockChart({ history = [], chartSeries = [], currency = 
       {/* Chart Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-gray-800">
         <div>
-          <h2 className="text-base font-semibold text-white flex items-center gap-2">
-            <Activity className="w-4 h-4 text-blue-400" /> Technical Price Action & Indicator Series
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-semibold text-white flex items-center gap-2">
+              <Activity className="w-4 h-4 text-blue-400" /> Technical Price Action & Indicator Series
+            </h2>
+            {currentPrice > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono font-semibold text-emerald-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>LIVE: {formatCurrency(currentPrice)}</span>
+              </div>
+            )}
+          </div>
           <p className="text-xs text-gray-400">Interactive OHLCV candlestick representation with trend moving averages</p>
         </div>
 
@@ -203,6 +216,24 @@ export default function StockChart({ history = [], chartSeries = [], currency = 
             )}
 
             <Tooltip content={<CustomTooltip />} />
+
+            {/* Live Reference Line tracking real-time market price */}
+            {currentPrice > 0 && (
+              <ReferenceLine
+                yAxisId="price"
+                y={currentPrice}
+                stroke="#10b981"
+                strokeDasharray="3 3"
+                strokeWidth={1.5}
+                label={{
+                  value: `Live: ${formatCurrency(currentPrice)}`,
+                  fill: '#10b981',
+                  position: 'right',
+                  fontSize: 10,
+                  fontWeight: 'bold'
+                }}
+              />
+            )}
 
             {/* Volume Bars */}
             <Bar yAxisId="volume" dataKey="volume" fill="#1f2937" opacity={0.6} radius={[2, 2, 0, 0]} />

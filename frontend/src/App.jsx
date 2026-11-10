@@ -100,6 +100,30 @@ export default function App() {
               }
             };
           });
+
+          // Dynamically mutate the latest candle/tick in the stock history so the map/chart line follows the market price!
+          setStockHistory(prev => {
+            if (!prev || !prev.history || prev.history.length === 0) return prev;
+            const newHist = [...prev.history];
+            const lastIdx = newHist.length - 1;
+            const updatedLast = { ...newHist[lastIdx] };
+            updatedLast.close = liveData.currentPrice;
+            if (updatedLast.high != null) updatedLast.high = Math.max(updatedLast.high, liveData.currentPrice);
+            if (updatedLast.low != null) updatedLast.low = Math.min(updatedLast.low, liveData.currentPrice);
+            newHist[lastIdx] = updatedLast;
+
+            let newSeries = prev.chartSeries;
+            if (newSeries && newSeries.length > 0) {
+              newSeries = [...newSeries];
+              const sLastIdx = newSeries.length - 1;
+              const sUpdatedLast = { ...newSeries[sLastIdx] };
+              sUpdatedLast.close = liveData.currentPrice;
+              if (sUpdatedLast.high != null) sUpdatedLast.high = Math.max(sUpdatedLast.high, liveData.currentPrice);
+              if (sUpdatedLast.low != null) sUpdatedLast.low = Math.min(sUpdatedLast.low, liveData.currentPrice);
+              newSeries[sLastIdx] = sUpdatedLast;
+            }
+            return { ...prev, history: newHist, chartSeries: newSeries };
+          });
         })
         .catch(() => {});
     }, 4000);
@@ -301,6 +325,7 @@ export default function App() {
                   currency={meta.currency}
                   period={period}
                   onPeriodChange={(p) => setPeriod(p)}
+                  currentPrice={meta.currentPrice}
                 />
               </div>
 
