@@ -108,7 +108,7 @@
 ## 📂 Project Directory Structure
 
 ```
-alladin-market-analyser/
+alladin-market-analyzer/
 ├── backend/
 │   ├── app/
 │   │   ├── data/
@@ -159,8 +159,8 @@ alladin-market-analyser/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/praneeth336/alladin-market-analyser-.git
-cd alladin-market-analyser-
+git clone https://github.com/praneeth336/alladin-market-analyzer.git
+cd alladin-market-analyzer
 ```
 
 ### 2. Set Up the Backend
